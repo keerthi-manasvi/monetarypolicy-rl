@@ -49,7 +49,7 @@ client = OpenAI(
 )
 
 # ── System prompt for the LLM policy agent ────────────────────────────────────
-SYSTEM_PROMPT = """You are an expert monetary policy economist for the Reserve Bank of India (RBI).
+BASE_SYSTEM_PROMPT = """You are an expert monetary policy economist for the Reserve Bank of India (RBI).
 Your objective is to act as the monetary policy committee, choosing the right policy instruments each month to:
 1. Keep headline CPI inflation close to the 4% target (tolerance band: 2%–6%)
 2. Preserve real GDP growth (ideally above 6.5%)
@@ -69,23 +69,100 @@ Available actions:
 """ + ACTION_LIST_TEXT
 
 
-def call_llm_agent(observation: str, step: int, max_retries: int = 3) -> tuple[int, str]:
+def lessons_path(scenario: str) -> str:
+    base_dir = os.path.dirname(__file__)
+    return os.path.join(base_dir, f"lessons_{scenario}.json")
+
+
+def load_lessons(scenario: str) -> str:
+    path = lessons_path(scenario)
+    if not os.path.exists(path):
+        return ""
+    with open(path, "r", encoding="utf-8") as f:
+        lessons = json.load(f)
+    recent = lessons[-5:]
+    return "\n".join(
+        f"Past episode score {l['score']}: {l['lesson']}" for l in recent
+    )
+
+
+def call_llm_for_summary(prompt: str) -> str:
+    response = client.chat.completions.create(
+        model=MODEL_NAME,
+        messages=[
+            {"role": "system", "content": BASE_SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
+        max_tokens=256,
+        temperature=0.3,
+    )
+    raw = response.choices[0].message.content.strip()
+    return raw
+
+
+def save_lesson(scenario: str, score: float, history: list) -> None:
+    summary_prompt = f"""
+You just completed a monetary policy episode.
+Score: {score}/10
+Trajectory: {json.dumps(history, indent=2)}
+
+In 2 sentences, what should a future agent do differently in this scenario to score higher?
+"""
+    lesson = call_llm_for_summary(summary_prompt)
+
+    path = lessons_path(scenario)
+    lessons = []
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            lessons = json.load(f)
+    lessons.append({"score": score, "lesson": lesson})
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(lessons, f, indent=2)
+
+
+def get_system_prompt(scenario: str) -> str:
+    lessons = load_lessons(scenario)
+    if lessons:
+        lessons_section = (
+            "LESSONS FROM PAST EPISODES:\n" + lessons + "\n\n"
+            "Use these lessons to make better decisions."
+        )
+    else:
+        lessons_section = "LESSONS FROM PAST EPISODES:\nNone yet."
+    return f"{BASE_SYSTEM_PROMPT}\n\n{lessons_section}\n"
+
+
+def call_llm_agent(observation: str, step: int, scenario: str, episode_history: list, max_retries: int = 3) -> tuple[int, str]:
     """
     Call the LLM agent to decide the next policy action.
     Returns (action_id, reasoning).
     """
-    user_message = (
-        f"Month {step}/{MAX_STEPS} — Analyse the following India macro dashboard and choose your policy action:\n\n"
-        f"{observation}\n\n"
-        "Respond with ONLY the JSON object as specified in your instructions."
-    )
+    history_text = "\n".join([
+        f"Month {h['step']}: Action={h['action']} → CPI={h['cpi']:.1f}% GDP={h['gdp']:.1f}% Reward={h['reward']:+.1f}"
+        for h in episode_history
+    ])
+    if not history_text:
+        history_text = "None yet — this is the first step."
+
+    user_message = f"""
+Month {step}/{MAX_STEPS}
+
+PAST DECISIONS THIS EPISODE:
+{history_text}
+
+CURRENT DASHBOARD:
+{observation}
+
+Review what has and hasn't worked. Then choose your action.
+Respond with ONLY the JSON object as specified in your instructions.
+"""
 
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
                 model=MODEL_NAME,
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": get_system_prompt(scenario)},
                     {"role": "user",   "content": user_message},
                 ],
                 max_tokens=256,
@@ -133,6 +210,7 @@ def run_episode(
     Emits [START], [STEP], [END] structured logs to stdout.
     Returns the grading report.
     """
+    current_scenario = scenario or "baseline"
     env = PriceStabilizerEnv(scenario=scenario, seed=seed)
 
     # ── [START] log ───────────────────────────────────────────────────────────
@@ -149,10 +227,11 @@ def run_episode(
 
     obs = env.reset()
     total_reward = 0.0
+    episode_history = []
 
     for step in range(1, MAX_STEPS + 1):
         # Get agent decision
-        action_id, reasoning = call_llm_agent(obs, step)
+        action_id, reasoning = call_llm_agent(obs, step, current_scenario, episode_history)
         action_name = ACTIONS[action_id]["name"]
 
         # Execute step
@@ -186,6 +265,14 @@ def run_episode(
 
         obs = next_obs
 
+        episode_history.append({
+            "step": step,
+            "action": action_name,
+            "cpi": info["state"]["cpi_inflation"],
+            "gdp": info["state"]["gdp_growth"],
+            "reward": reward,
+        })
+
         if done:
             break
 
@@ -201,6 +288,8 @@ def run_episode(
         "grading": grading_report,
     }
     print(f"[END] {json.dumps(end_payload)}", flush=True)
+
+    save_lesson(current_scenario, grading_report["overall_score"], episode_history)
 
     if verbose:
         _pretty_grade(grading_report)
