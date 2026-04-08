@@ -178,7 +178,7 @@ def apply_action(state: MacroState, action_id: int) -> MacroState:
     oil_pass_through   = s["oil_price_shock"] * 0.10
     food_pass_through  = s["global_food_shock"] * 0.12
     demand_pull        = max(0, (s["private_consumption"] - 6.0)) * 0.08
-    monetary_effect    = -tightness * 0.25          # tightening reduces inflation
+    monetary_effect    = -tightness * 0.6         # tightening reduces inflation
     sentiment_effect   = -s["market_sentiment"] * 0.05
     noise              = random.gauss(0, 0.15)
 
@@ -513,9 +513,12 @@ class PriceStabilizerEnv:
                         private_consumption=2.0)
 
         elif self.scenario == "external_shock":
-            base.update(oil_price_shock=25.0, global_food_shock=20.0,
-                        currency_pressure=5.0, geopolitical_risk=0.9,
-                        forex_reserves=55.0, cpi_inflation=7.0)
+             base.update(oil_price_shock=10.0,   
+                global_food_shock=8.0,  
+                currency_pressure=3.0, 
+                geopolitical_risk=0.9,
+                forex_reserves=55.0,
+                cpi_inflation=7.0)
 
         elif self.scenario == "random":
             # Randomised stress test

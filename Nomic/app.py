@@ -49,7 +49,7 @@ def run_simulation(scenario: str, agent_type: str, hf_token: str, seed: int):
             from inference import SYSTEM_PROMPT, call_llm_agent
             os.environ["HF_TOKEN"] = hf_token.strip()
             os.environ["API_BASE_URL"] = "https://router.huggingface.co/v1/"
-            os.environ["MODEL_NAME"] = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+            os.environ["MODEL_NAME"] = "meta-llama/Llama-3.1-8B-Instruct"
         except Exception:
             use_llm = False
 

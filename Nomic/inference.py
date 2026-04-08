@@ -33,7 +33,7 @@ from price_stabilizer_env import (
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 API_BASE_URL: str = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1/")
-MODEL_NAME:   str = os.getenv("MODEL_NAME",   "meta-llama/Meta-Llama-3.1-8B-Instruct")
+MODEL_NAME:   str = os.getenv("MODEL_NAME",   "meta-llama/Llama-3.1-8B-Instruct")
 HF_TOKEN:     str = os.getenv("HF_TOKEN",     "")   # required at runtime
 
 # Fallback to OpenAI if explicitly requested
