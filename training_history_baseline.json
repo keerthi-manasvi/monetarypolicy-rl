@@ -1,0 +1,112 @@
+[
+  {
+    "episode": 1,
+    "score": 5.37,
+    "grade": "C",
+    "avg_cpi": 10.6,
+    "avg_gdp": 5.85,
+    "inflation_management": 0.83,
+    "growth_preservation": 8.36,
+    "employment": 8.3,
+    "policy_stability": 9.17
+  },
+  {
+    "episode": 2,
+    "score": 9.59,
+    "grade": "A",
+    "avg_cpi": 4.98,
+    "avg_gdp": 6.98,
+    "inflation_management": 9.17,
+    "growth_preservation": 9.97,
+    "employment": 9.25,
+    "policy_stability": 10.0
+  },
+  {
+    "episode": 3,
+    "score": 7.06,
+    "grade": "B",
+    "avg_cpi": 6.04,
+    "avg_gdp": 6.52,
+    "inflation_management": 4.17,
+    "growth_preservation": 9.31,
+    "employment": 8.96,
+    "policy_stability": 9.17
+  },
+  {
+    "episode": 4,
+    "score": 5.83,
+    "grade": "C",
+    "avg_cpi": 8.6,
+    "avg_gdp": 6.2,
+    "inflation_management": 1.67,
+    "growth_preservation": 8.86,
+    "employment": 8.1,
+    "policy_stability": 10.0
+  },
+  {
+    "episode": 5,
+    "score": 6.25,
+    "grade": "C",
+    "avg_cpi": 6.72,
+    "avg_gdp": 7.09,
+    "inflation_management": 0.83,
+    "growth_preservation": 10.0,
+    "employment": 10.0,
+    "policy_stability": 10.0
+  },
+  {
+    "episode": 6,
+    "score": 5.98,
+    "grade": "C",
+    "avg_cpi": 6.81,
+    "avg_gdp": 8.11,
+    "inflation_management": 0.83,
+    "growth_preservation": 10.0,
+    "employment": 9.28,
+    "policy_stability": 9.17
+  },
+  {
+    "episode": 7,
+    "score": 6.12,
+    "grade": "C",
+    "avg_cpi": 9.49,
+    "avg_gdp": 7.75,
+    "inflation_management": 0.83,
+    "growth_preservation": 10.0,
+    "employment": 10.0,
+    "policy_stability": 9.17
+  },
+  {
+    "episode": 8,
+    "score": 10.0,
+    "grade": "A",
+    "avg_cpi": 5.01,
+    "avg_gdp": 8.38,
+    "inflation_management": 10.0,
+    "growth_preservation": 10.0,
+    "employment": 10.0,
+    "policy_stability": 10.0
+  },
+  {
+    "episode": 9,
+    "score": 7.91,
+    "grade": "B",
+    "avg_cpi": 5.9,
+    "avg_gdp": 7.58,
+    "inflation_management": 4.17,
+    "growth_preservation": 10.0,
+    "employment": 10.0,
+    "policy_stability": 9.17
+  },
+  {
+    "episode": 10,
+    "score": 6.12,
+    "grade": "C",
+    "avg_cpi": 6.99,
+    "avg_gdp": 7.63,
+    "inflation_management": 0.83,
+    "growth_preservation": 10.0,
+    "employment": 9.35,
+    "policy_stability": 10.0
+  }
+]

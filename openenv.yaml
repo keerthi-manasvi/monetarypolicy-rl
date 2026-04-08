@@ -1,0 +1,40 @@
+spec_version: 1
+name: price-stabilizer-env
+type: environment
+version: "1.0.0"
+description: >
+  India monetary policy RL environment. An LLM agent acts as the RBI Monetary
+  Policy Committee, choosing policy instruments (repo rate, CRR, SLR, OMO)
+  each month to stabilise CPI inflation, GDP growth, and employment over a
+  12-step fiscal year episode.
+author: karunarapoluuu
+runtime: docker
+app: server/app.py
+port: 7860
+
+environment:
+  action_space:
+    type: discrete
+    n: 15
+    description: "Policy actions: repo rate ±25/50bp, CRR ±50bp, SLR ±100bp, OMO buy/sell bonds, hold"
+  observation_space:
+    type: text
+    description: "Macro dashboard: CPI, GDP, unemployment, repo rate, FX pressure, commodity shocks"
+  reward_range: [-10.0, 10.0]
+  max_steps: 12
+
+scenarios:
+  - baseline
+  - stagflation
+  - high_growth_overheating
+  - recession_risk
+  - external_shock
+  - random
+
+tags:
+  - economics
+  - monetary-policy
+  - india
+  - rbi
+  - reinforcement-learning
+  - llm-agent
