@@ -6,7 +6,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pytest
-from environments.price_stabilizer_env import (
+from price_stabilizer_env import (
     PriceStabilizerEnv,
     ACTIONS,
     apply_action,
