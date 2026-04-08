@@ -1,0 +1,45 @@
+name: Price Stabilizer CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Run unit tests
+        run: pytest tests/ -v --tb=short
+
+      - name: Run demo (smoke test)
+        run: python demo.py --seed 42
+
+      - name: Test all scenarios
+        run: |
+          for scenario in stagflation high_growth_overheating recession_risk external_shock random; do
+            echo "Testing scenario: $scenario"
+            python demo.py --scenario $scenario --seed 1
+          done
+
+      - name: Verify log format
+        run: |
+          python demo.py --seed 42 | grep -c "^\[START\]" | xargs -I {} test {} -eq 1
+          python demo.py --seed 42 | grep -c "^\[STEP\]"  | xargs -I {} test {} -eq 12
+          python demo.py --seed 42 | grep -c "^\[END\]"   | xargs -I {} test {} -eq 1
+          echo "Log format verification passed"

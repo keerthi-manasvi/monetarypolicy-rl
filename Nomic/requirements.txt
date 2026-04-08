@@ -1,0 +1,5 @@
+openai>=1.14.0
+gradio>=4.36.0
+plotly>=5.20.0
+pandas>=2.0.0
+numpy>=1.24.0
